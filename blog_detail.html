@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarship Hub - Professional Portal</title>
+    <!-- Tailwind with Typography Plugin for better blog text -->
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <style> 
+        body { font-family: 'Plus Jakarta Sans', sans-serif; } 
+        html { scroll-behavior: smooth; }
+        @keyframes click-bounce { 0% { transform: scale(1); } 50% { transform: scale(0.95); } 100% { transform: scale(1); } }
+        .logo-click-anim { animation: click-bounce 0.3s ease-in-out; }
+        .ql-editor { min-height: 200px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 selection:bg-blue-200">
+
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" onclick="animateLogo(event)" class="flex items-center space-x-2 group p-2 rounded-xl transition-colors hover:bg-gray-50">
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2.5 rounded-xl shadow-lg">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <span class="text-2xl font-extrabold text-gray-800 tracking-tight">Scholarship<span class="text-blue-600">Hub</span></span>
+            </a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#home" class="text-gray-600 hover:text-blue-600 font-semibold transition relative group">Home <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span></a>
+                <a href="#opportunities" class="text-gray-600 hover:text-blue-600 font-semibold transition relative group">Opportunities <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span></a>
+                <a href="#blogs" class="text-gray-600 hover:text-blue-600 font-semibold transition relative group">Blogs <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span></a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleAdminPanel()" id="adminToggleBtn" class="text-sm font-bold text-gray-500 hover:text-blue-600 border border-gray-200 px-4 py-2 rounded-lg transition hover:bg-white hover:shadow-md">Admin</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="min-h-screen">
+        <div id="userView">
+            <section id="home" class="relative bg-gradient-to-br from-blue-900 to-indigo-900 text-white py-24 text-center overflow-hidden">
+                <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-blue-500/20 blur-3xl animate-pulse"></div>
+                <h1 data-aos="fade-up" class="text-5xl md:text-7xl font-extrabold mb-6 relative z-10 leading-tight">Unlock Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-500">Global Future</span></h1>
+                <p data-aos="fade-up" data-aos-delay="200" class="text-blue-100 text-lg md:text-xl mb-10 max-w-2xl mx-auto relative z-10">Discover fully funded scholarships, internships, and dream jobs at the world's top organizations.</p>
+                <div data-aos="fade-up" data-aos-delay="200" class="relative z-10 bg-white p-2 rounded-2xl shadow-2xl flex max-w-xl mx-auto transform transition hover:scale-105">
+                    <input type="text" id="searchInput" placeholder="Search scholarships, jobs, or countries..." class="w-full px-6 py-4 text-gray-700 outline-none rounded-l-xl text-lg bg-transparent" onkeyup="filterListings()">
+                    <button onclick="searchAndScroll()" class="bg-blue-600 text-white font-bold px-8 py-4 rounded-xl hover:bg-blue-700 shadow-lg">Search</button>
+                </div>
+            </section>
+
+            <section id="opportunities" class="py-20 bg-gray-50">
+                <div class="container mx-auto px-6">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-10 border-l-8 border-blue-600 pl-4">Latest Opportunities</h2>
+                    <div id="listingGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
+                </div>
+            </section>
+
+            <section id="blogs" class="py-20 bg-white border-t border-gray-100">
+                <div class="container mx-auto px-6">
+                    <h2 class="text-4xl font-bold text-center text-gray-900 mb-10">Latest Blogs</h2>
+                    <div id="blogGrid" class="grid grid-cols-1 md:grid-cols-3 gap-10"></div>
+                </div>
+            </section>
+            <footer class="bg-gray-900 text-white py-12 text-center"><p>&copy; 2025 Scholarship Hub.</p></footer>
+        </div>
+
+        <div id="adminView" class="hidden min-h-screen bg-gray-100 flex-col md:flex-row">
+            <aside class="w-full md:w-64 bg-gray-900 text-white p-6 flex-shrink-0">
+                <h2 class="text-2xl font-bold mb-6">AdminPanel</h2>
+                <nav class="space-y-2">
+                    <button id="btn-nav-listings" onclick="switchAdminTab('listings')" class="admin-nav-btn w-full text-left py-3 px-4 rounded hover:bg-gray-800 transition">Listings</button>
+                    <button id="btn-nav-blogs" onclick="switchAdminTab('blogs')" class="admin-nav-btn w-full text-left py-3 px-4 rounded hover:bg-gray-800 transition">Manage Blogs</button>
+                </nav>
+            </aside>
+            <div class="flex-1 p-8 overflow-y-auto">
+                <div id="adminListingsContent">
+                    <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Listings</h2><button onclick="openAddModal()" class="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700 transition">Add New</button></div>
+                    <div class="bg-white rounded shadow overflow-auto"><table class="w-full text-left"><tbody id="adminTableBody"></tbody></table></div>
+                </div>
+                <div id="adminBlogsContent" class="hidden">
+                    <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">Blogs</h2><button onclick="openAddBlogModal()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">Write Blog</button></div>
+                    <div class="bg-white rounded shadow overflow-auto"><table class="w-full text-left"><tbody id="adminBlogTableBody"></tbody></table></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- NEW: Read Blog Modal (Shows full blog here) -->
+    <div id="readBlogModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl relative my-8 animate-fade-in-up">
+            <!-- Scrollable Content -->
+            <div class="max-h-[90vh] overflow-y-auto p-8 md:p-12 custom-scrollbar">
+                <!-- Close Button -->
+                <button onclick="closeModal('readBlogModal')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 text-3xl transition z-10">&times;</button>
+                
+                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">Blog Post</span>
+                
+                <h1 id="readBlogTitle" class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-4 mb-4 leading-tight"></h1>
+                
+                <div id="readBlogMeta" class="text-gray-500 text-sm mb-8 border-b pb-8 flex items-center gap-4">
+                    <!-- JS will inject info here -->
+                </div>
+                
+                <!-- Full Content Area (Prose for styling) -->
+                <div id="readBlogContent" class="prose prose-lg prose-blue max-w-none text-gray-600 leading-relaxed"></div>
+                
+                <div class="mt-10 pt-8 border-t text-center">
+                    <button onclick="closeModal('readBlogModal')" class="bg-gray-100 text-gray-700 font-bold px-8 py-3 rounded-full hover:bg-gray-200 transition">Close Article</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-sm m-4 shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-lock"></i></div>
+                <h3 class="text-2xl font-bold text-gray-800">Admin Access</h3>
+            </div>
+            <form onsubmit="handleAdminLogin(event)">
+                <input type="text" id="adminUser" required class="w-full border p-3 rounded-lg mb-3 outline-none focus:border-blue-500" placeholder="Username">
+                <input type="password" id="adminPass" required class="w-full border p-3 rounded-lg mb-3 outline-none focus:border-blue-500" placeholder="Password">
+                <div class="flex justify-end gap-3 mt-4">
+                    <button type="button" onclick="closeModal('adminLoginModal')" class="text-gray-500 hover:text-gray-800">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Apply Modal -->
+    <div id="applyModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-md m-4 shadow-2xl">
+            <h3 class="text-2xl font-bold mb-4">Apply Now</h3>
+            <form onsubmit="submitApplication(event)">
+                <input type="text" name="full_name" placeholder="Name" required class="w-full border p-3 rounded-lg mb-3 outline-none focus:border-blue-500">
+                <input type="email" name="email" placeholder="Email" required class="w-full border p-3 rounded-lg mb-3 outline-none focus:border-blue-500">
+                <textarea name="statement" placeholder="Why you?" required class="w-full border p-3 rounded-lg mb-3 h-24 outline-none focus:border-blue-500"></textarea>
+                <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('applyModal')" class="text-gray-500 hover:text-gray-700">Cancel</button><button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Submit</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Listing Modal -->
+    <div id="addModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-md m-4 shadow-2xl">
+            <h3 class="text-2xl font-bold mb-4">Add Listing</h3>
+            <form onsubmit="addListing(event)">
+                <select name="type" class="w-full border p-3 rounded-lg mb-3"><option>Scholarship</option><option>Job</option></select>
+                <input type="text" name="title" placeholder="Title" required class="w-full border p-3 rounded-lg mb-3">
+                <input type="text" name="category" placeholder="Category" required class="w-full border p-3 rounded-lg mb-3">
+                <input type="text" name="amount" placeholder="Amount" required class="w-full border p-3 rounded-lg mb-3">
+                <input type="text" name="university" placeholder="Location" required class="w-full border p-3 rounded-lg mb-3">
+                <input type="date" name="deadline" required class="w-full border p-3 rounded-lg mb-3">
+                <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('addModal')" class="text-gray-500 hover:text-gray-700">Cancel</button><button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">Publish</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Blog Modal -->
+    <div id="addBlogModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl w-full max-w-2xl m-4 shadow-2xl h-[90vh] flex flex-col">
+            <h3 class="text-2xl font-bold mb-4">Write Blog Post</h3>
+            <form onsubmit="addBlog(event)" class="flex-1 flex flex-col">
+                <input type="text" name="title" placeholder="Blog Title" required class="w-full border p-3 rounded-lg mb-3 outline-none focus:border-blue-500 font-bold text-lg">
+                <input type="text" name="author" placeholder="Author Name" required class="w-full border p-3 rounded-lg mb-3 outline-none focus:border-blue-500">
+                <input type="text" name="excerpt" placeholder="Short Summary (shown on card)..." required class="w-full border p-3 rounded-lg mb-3 outline-none focus:border-blue-500 text-sm text-gray-600">
+                <div class="flex-1 border rounded-lg mb-3 bg-white overflow-hidden flex flex-col"><div id="editor-container"></div></div>
+                <div class="flex justify-end gap-3 pt-2"><button type="button" onclick="closeModal('addBlogModal')" class="text-gray-500 hover:text-gray-700 px-4">Cancel</button><button type="submit" class="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 shadow-md">Publish Blog</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script> 
+    <script src="js/script.js"></script>
+</body>
+</html>
